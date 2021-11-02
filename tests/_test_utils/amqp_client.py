@@ -17,8 +17,15 @@ class AmqpClient:
         self._channel: Union[aiormq.Channel, None] = None
         self._messages: List[DeliveredMessage] = []
 
-    async def connect(self) -> None:
-        self._connection = await aiormq.connect(f"amqp://{self._host}:{self._port}/{self._vhost}")
+    @property
+    def connection(self):
+        return self._connection
+
+    async def connect(self, connection: Optional[aiormq.Connection] = None) -> None:
+        if connection is None:
+            self._connection = await aiormq.connect(f"amqp://{self._host}:{self._port}/{self._vhost}")
+        else:
+            self._connection = connection
         self._channel = await self._connection.channel()
 
     async def close(self) -> None:
